@@ -1,0 +1,8 @@
+### Composer ### 
+composer.phar 
+/vendor/ 
+
+### PhpStorm ### 
+.idea
+
+/node_modules/
