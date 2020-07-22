@@ -6,7 +6,7 @@ class Database
     private MysqliDb $database;
     public function __construct()
     {
-        $this->database = new MysqliDb ('localhost', 'root', '03062000', 'SpaceDB');
+        $this->database = new MysqliDb ('us-cdbr-east-02.cleardb.com', 'b08be9762eaaf9', 'ec559987', 'heroku_34a7b089fa72039');
     }
 
     private function getPatentByTitle($title)
