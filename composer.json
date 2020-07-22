@@ -3,6 +3,7 @@
         "guzzlehttp/guzzle": "^6.1.1",
       "ext-json": "*",
       "ext-curl": "*",
-        "irazasyed/telegram-bot-sdk": "^2.0"
+        "irazasyed/telegram-bot-sdk": "^2.0",
+        "thingengineer/mysqli-database-class": "dev-master"
     }
 }

@@ -2,37 +2,37 @@
 
 class News
 {
-    private $token = "34ff380705cc465fa3c53f34e1914259";
+    private const TOKEN = "34ff380705cc465fa3c53f34e1914259";
+    private const SEARCH_PARAMETERS = "NASA";
+    private const SEARCH_URL = "http://newsapi.org/v2/everything?q=" . self::SEARCH_PARAMETERS . "&language=en&sortBy=publishedAt&apiKey=" . self::TOKEN;
 
-    private function createArrayWithRequiredData(&$article)
+    private function createArrayWithData($article) : string
     {
         $title = $article->title;
         $description = $article->description;
         $urlToImage = $article->urlToImage;
         $url = $article->url;
 
-        return json_encode(['title' => $title, 'description' => $description, 'urlToImage' => $urlToImage, 'url' => $url]);
+        return $result = json_encode(['title' => $title, 'description' => $description, 'urlToImage' => $urlToImage, 'url' => $url]);
     }
 
-    public function getNews()
+    public function getNews() : string
     {
-        $url = "http://newsapi.org/v2/everything?q=new technologies, NASA&language=en&sortBy=publishedAt&apiKey=".$this->token;
-
-        $response = query($url);
+        $response = query(self::SEARCH_URL);
 
         if(empty($response))
         {
-            return UNAVAILABLE_SERVICE_MESSAGE;
+            return "";
         }
 
         if(empty($response->articles))
         {
-            return "Sorry, but no news lately";
+            return "";
         }
 
         $firstArticle = $response->articles[0];
 
-        return $this->createArrayWithRequiredData($firstArticle);
+        return $this->createArrayWithData($firstArticle);
 
     }
 

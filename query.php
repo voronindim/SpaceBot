@@ -1,6 +1,6 @@
 <?php
 
-function query(&$url)
+function query($url)
 {
     $client = new \GuzzleHttp\Client();
 

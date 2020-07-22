@@ -1,11 +1,14 @@
 <?php
 
 include ('vendor/autoload.php');
-include('botCommands.php');
+include('BotCommands.php');
 
-$telegram = new botCommands();
+$telegram = new BotCommands();
 
-while(true)
+try
 {
     $telegram->useBot();
+}
+catch (Exception $e)
+{
 }

@@ -2,20 +2,19 @@
 
 include ('query.php');
 
-const UNAVAILABLE_SERVICE_MESSAGE = "Sorry, the service is temporarily unavailable, please try again later.";
-
 class GetInformationFromNASA
 {
-    private $token = "G56AJ2k89DUMHwInYmpFCkVBp0kzDEKHrZ1p1cWk";
+    private const TOKEN = "G56AJ2k89DUMHwInYmpFCkVBp0kzDEKHrZ1p1cWk";
+    private const API_URL = "https://api.nasa.gov/planetary/apod?api_key=" . self::TOKEN;
+    private const API_PATENT_URL = "https://api.nasa.gov/techtransfer/patent/?engine&api_key=" . self::TOKEN;
 
-    public function getAstronomicalPicture()
+    public function getAstronomicalPicture() : string
     {
-        $url = "https://api.nasa.gov/planetary/apod?api_key=".$this->token;
-        $response = query($url);
+        $response = query(self::API_URL);
 
         if(empty($response))
         {
-            return UNAVAILABLE_SERVICE_MESSAGE ;
+            return "";
         }
 
         $title = $response->title;
@@ -25,7 +24,7 @@ class GetInformationFromNASA
         return json_encode(['title' => $title, 'description' =>$description, 'urlToImage' => $urlToImage]);
     }
 
-    private function replaceHtmlTags($string)
+    private function replaceHtmlTags($string) : string
     {
         $eraseStr = '</span>';
         $eraseStr1 = '<span class="highlight">';
@@ -36,31 +35,31 @@ class GetInformationFromNASA
         return $string;
     }
 
-    private function getCorrectContent(&$article)
+    private function getCorrectContent($article) : array
     {
         $title = $this->replaceHtmlTags($article[2]);
         $description = $this->replaceHtmlTags($article[3]);
 
         $urlToImage = str_replace(" ", "%20", $article[10]);
-        return json_encode(['title' => $title, 'description' => $description, 'urlToImage' => $urlToImage]);
+        return ['title' => $title, 'description' => $description, 'urlToImage' => $urlToImage];
     }
 
-    private function getRandomPatent(&$response)
+    public function getPatents() : string
     {
-        $articleNumber = rand(0, $response->total);
-        return $this->getCorrectContent($response->results[$articleNumber]);
-    }
-
-    public function getPatent()
-    {
-        $url = "https://api.nasa.gov/techtransfer/patent/?engine&api_key=".$this->token;
-        $response = query($url);
+        $response = query(self::API_PATENT_URL)->results;
 
         if(empty($response))
         {
-            return UNAVAILABLE_SERVICE_MESSAGE;
+            return "";
         }
 
-        return $this->getRandomPatent($response);
+        $arrayOfPatents = [];
+
+        foreach ($response as $item)
+        {
+            array_push($arrayOfPatents, $this->getCorrectContent($item));
+        }
+
+        return json_encode($arrayOfPatents);
     }
 }
