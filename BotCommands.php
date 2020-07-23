@@ -32,13 +32,18 @@ class BotCommands
         $this->information = new GetInformationFromNASA();
         $this->news = new News();
         $this->database = new Database();
-        $this->addNewPatentsToDatabase();
     }
 
-    public function sendNotification($chat_id) : void
+    public function sendNotification() : void
     {
-        $this->telegramBot->sendMessage($chat_id, self::NOTIFICATION);
-        $this->sendAstronomicalPicture($chat_id);
+        $allChatId = $this->database->getAllUsers();
+
+        foreach ($allChatId as $item)
+        {
+            $chatId = $item['chat_id'];
+            $this->telegramBot->sendMessage($chatId, self::NOTIFICATION);
+            $this->sendAstronomicalPicture($chatId);
+        }
     }
 
     private function sendRandomPatent($chatId) : void
@@ -190,6 +195,7 @@ class BotCommands
         if ($userText == "/start")
         {
             $this->sendWelcomeMessage($chatId);
+            $this->database->addNewUser($chatId);
         }
         elseif ($userText == "Astronomy picture of the day")
         {
@@ -279,7 +285,7 @@ class BotCommands
             }
     }
 
-    private function addNewPatentsToDatabase() : void
+    public function addNewPatentsToDatabase() : void
     {
         $patents = json_decode($this->information->getPatents());
         foreach ($patents as $patent)

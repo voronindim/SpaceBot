@@ -38,6 +38,27 @@ class Database
             ->delete('library');
     }
 
+    public function addNewUser($chatId)
+    {
+        if ($this->isNewUser($chatId))
+        {
+            $data = ['chat_id' => $chatId];
+            $this->database->insert('user', $data);
+        }
+    }
+
+    public function getAllUsers()
+    {
+        return $this->database->get('user');
+    }
+
+    private function isNewUser($chatId)
+    {
+        $result = $this->database
+            ->where('chat_id', $chatId)
+            ->getOne('user');
+        return empty($result);
+    }
 
     public function deleteAll($chatId)
     {
