@@ -23,7 +23,7 @@ class TelegramBot
         return $this->telegram->replyKeyboardMarkup([ 'keyboard' => $keyboard, 'resize_keyboard' => true]);
     }
 
-    public function sendMessage($chat_id, $text, $keyboard = null) : bool
+    public function sendMessage($chat_id, $text, $keyboard = null)
     {
         try
         {
@@ -33,12 +33,10 @@ class TelegramBot
                 'parse_mode' => 'HTML',
                 'reply_markup' => $keyboard
             ]);
-            return true;
         }
         catch (Exception $e)
         {
             print_r($e->getMessage());
-            return false;
         }
     }
 }

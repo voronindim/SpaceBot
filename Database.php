@@ -75,7 +75,6 @@ class Database
     public function deleteAll($chatId)
     {
         $userId = $this->getUserIdByChatId($chatId);
-        print_r($userId);
         $this->database
             ->where('user_id', $userId)
             ->delete('library');
