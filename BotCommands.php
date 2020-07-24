@@ -86,7 +86,7 @@ class BotCommands
     {
         $news = $this->news->getNews();
 
-        if(is_null(null))
+        if(is_null($news))
         {
             $this->telegramBot->sendMessage($chatId, Constants\NEWS_NOT_FOUND);
             return;
