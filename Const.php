@@ -8,7 +8,7 @@ const NEWS = "NASA NEWS";
 const LIBRARY = "PATENTS LIBRARY";
 const MENU = [[ASTRONOMY_PICTURE], [RANDOM_PATENT], [NEWS], [LIBRARY]];
 
-const ADD_TO_LIBRARY = "PATENTS LIBRARY";
+const ADD_TO_LIBRARY = "addToLibrary";
 const DELETE_FROM_LIBRARY = "deleteFromLibrary";
 const DELETE_ALL = "deleteAll";
 
