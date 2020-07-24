@@ -4,7 +4,7 @@ include('TelegramBot.php');
 include('GetInformationFromNASA.php');
 include('News.php');
 include('Database.php');
-
+include('Const.php');
 
 class BotCommands
 {
