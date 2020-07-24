@@ -8,20 +8,20 @@ class GetInformationFromNASA
     private const API_URL = "https://api.nasa.gov/planetary/apod?api_key=" . self::TOKEN;
     private const API_PATENT_URL = "https://api.nasa.gov/techtransfer/patent/?engine&api_key=" . self::TOKEN;
 
-    public function getAstronomicalPicture() : string
+    public function getAstronomicalPicture() : ?string
     {
         $response = query(self::API_URL);
 
-        if(empty($response))
+        if(is_null($response))
         {
-            return "";
+            return null;
         }
 
         $title = $response->title;
         $description = $response->explanation;
         $urlToImage = $response->url;
 
-        return json_encode(['title' => $title, 'description' =>$description, 'urlToImage' => $urlToImage]);
+        return json_encode(['title' => $title, 'description' => $description, 'urlToImage' => $urlToImage]);
     }
 
     private function replaceHtmlTags($string) : string
@@ -44,13 +44,13 @@ class GetInformationFromNASA
         return ['title' => $title, 'description' => $description, 'urlToImage' => $urlToImage];
     }
 
-    public function getPatents() : string
+    public function getPatents() : ?string
     {
         $response = query(self::API_PATENT_URL)->results;
 
-        if(empty($response))
+        if(is_null($response))
         {
-            return "";
+            return null;
         }
 
         $arrayOfPatents = [];

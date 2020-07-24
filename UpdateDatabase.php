@@ -1,8 +1,18 @@
 <?php
 
 include ('vendor/autoload.php');
-include('BotCommands.php');
+include('Database.php');
+include('GetInformationFromNASA.php');
 
-$telegram = new BotCommands();
+$information = new GetInformationFromNASA();
+$database = new Database();
 
-$telegram->addNewPatentsToDatabase();
+$patents = json_decode($information->getPatents());
+
+foreach ($patents as $patent)
+{
+    if (!$database->searchPatent($patent->title))
+    {
+        $database->addPatent($patent);
+    }
+}

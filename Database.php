@@ -3,10 +3,15 @@
 
 class Database
 {
+    private const HOST = 'us-cdbr-east-02.cleardb.com';
+    private const USERNAME = 'b08be9762eaaf9';
+    private const PASSWORD = 'ec559987';
+    private const DB = 'heroku_34a7b089fa72039';
+
     private MysqliDb $database;
     public function __construct()
     {
-        $this->database = new MysqliDb ('us-cdbr-east-02.cleardb.com', 'b08be9762eaaf9', 'ec559987', 'heroku_34a7b089fa72039');
+        $this->database = new MysqliDb (self::HOST, self::USERNAME, self::PASSWORD, self::DB);
     }
 
     private function getPatentByTitle($title)
@@ -19,10 +24,16 @@ class Database
         return json_encode($this->database->where('id', $id)->getOne('patent'));
     }
 
+    private function getUserIdByChatId($chatId)
+    {
+        $result = $this->database->where('chat_id', $chatId)->getOne('user');
+        return $result['id'];
+    }
+
     public function savePatentToLibrary($chatId, $title)
     {
         $data = [
-            'chat_id' => $chatId,
+            'user_id' => $this->getUserIdByChatId($chatId),
             'patent_id' => $this->getPatentByTitle($title)['id']
         ];
 
@@ -31,9 +42,10 @@ class Database
 
     public function erasePatenFromLibrary($chatId, $title)
     {
+        $userId = $this->getUserIdByChatId($chatId);
         $patentId = $this->getPatentByTitle($title)['id'];
         $this->database
-            ->where('chat_id', $chatId)
+            ->where('user_id', $userId)
             ->where('patent_id', $patentId)
             ->delete('library');
     }
@@ -62,8 +74,9 @@ class Database
 
     public function deleteAll($chatId)
     {
+        $userId = $this->getUserIdByChatId($chatId);
         $this->database
-            ->where('chat_id', $chatId)
+            ->where('user_id', $userId)
             ->delete('library');
     }
 
@@ -75,8 +88,9 @@ class Database
 
     public function isPatentInLibraryById($chatId, $id) : bool
     {
+        $userId = $this->getUserIdByChatId($chatId);
         return !empty($this->database
-            ->where('chat_id', $chatId)
+            ->where('user_id', $userId)
             ->where('patent_id', $id)
             ->get('library'));
     }
@@ -101,11 +115,18 @@ class Database
         return json_encode($this->database->get('patent'));
     }
 
-    public function getLibrary($chatId) : array
+    public function getLibrary($chatId) : ?array
     {
-        return $this->database
+        $userId = $this->getUserIdByChatId($chatId);
+        $result = $this->database
             ->join('patent', 'library.patent_id = patent.id', 'LEFT')
-            ->where('library.chat_id', $chatId)->get('library');
+            ->where('library.user_id', $userId)->get('library');
+
+        if (empty($result))
+        {
+            return null;
+        }
+        return $result;
     }
 
 }

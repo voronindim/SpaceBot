@@ -1,23 +1,13 @@
 <?php
+
 include('TelegramBot.php');
 include('GetInformationFromNASA.php');
 include('News.php');
 include('Database.php');
 
+
 class BotCommands
 {
-    private const MENU = [['Astronomy picture of the day'], ['Get random the NASA patent'], ['NASA NEWS'], ['PATENTS LIBRARY']];
-    private const NOTIFICATION = "Hello, don't forget to see the astronomical picture of the day";
-    private const NEWS_NOT_FOUND = "Sorry, but no news lately";
-    private const WELCOME_MESSAGE = "Welcome! Use the built-in keyboard";
-    private const USE_KEYBOARD_MESSAGE = "Please, use the built-in keyboard";
-    private const UNAVAILABLE_SERVICE_MESSAGE = "Sorry, the service is temporarily unavailable, please try again later.";
-    private const CORRECT_ADD_TO_LIBRARY = "Patent added successfully";
-    private const PATENT_IN_LIBRARY = "Patent is already in your library";
-    private const LIBRARY_IS_EMPTY = "Sorry, library is empty :(";
-    private const PATENT_NOT_FOUND_IN_LIBRARY = "This patent is not in your library";
-    private const ALL_PATENTS_REMOVE = "You have successfully cleaned up the library";
-
     private TelegramBot $telegramBot;
 
     private GetInformationFromNASA $information;
@@ -41,7 +31,7 @@ class BotCommands
         foreach ($allChatId as $item)
         {
             $chatId = $item['chat_id'];
-            $this->telegramBot->sendMessage($chatId, self::NOTIFICATION);
+            $this->telegramBot->sendMessage($chatId, constants\NOTIFICATION);
             $this->sendAstronomicalPicture($chatId);
         }
     }
@@ -53,7 +43,7 @@ class BotCommands
 
         if (empty($patent))
         {
-            $this->telegramBot->sendMessage($chatId, self::UNAVAILABLE_SERVICE_MESSAGE);
+            $this->telegramBot->sendMessage($chatId, constants\UNAVAILABLE_SERVICE_MESSAGE);
             return;
         }
 
@@ -81,9 +71,9 @@ class BotCommands
     {
         $astronomicalPicture = $this->information->getAstronomicalPicture();
 
-        if(empty($astronomicalPicture))
+        if(is_null($astronomicalPicture))
         {
-            $this->telegramBot->sendMessage($chatId, self::UNAVAILABLE_SERVICE_MESSAGE);
+            $this->telegramBot->sendMessage($chatId, constants\UNAVAILABLE_SERVICE_MESSAGE);
             return;
         }
 
@@ -96,9 +86,9 @@ class BotCommands
     {
         $news = $this->news->getNews();
 
-        if(empty($news))
+        if(is_null(null))
         {
-            $this->telegramBot->sendMessage($chatId, self::NEWS_NOT_FOUND);
+            $this->telegramBot->sendMessage($chatId, constants\NEWS_NOT_FOUND);
             return;
         }
 
@@ -120,9 +110,9 @@ class BotCommands
     {
         $library = $this->database->getLibrary($chatId);
 
-        if (empty($library))
+        if (is_null($library))
         {
-            $this->telegramBot->sendMessage($chatId, self::LIBRARY_IS_EMPTY);
+            $this->telegramBot->sendMessage($chatId, constants\LIBRARY_IS_EMPTY);
             return;
         }
 
@@ -145,7 +135,7 @@ class BotCommands
             $message = $message . $count . ". " . $item['title'] . "\n\n";
             $id = $item['id'];
             array_push($libraryButtons, ['text' => $count, 'callback_data' => $id]);
-            $count += 1;
+            $count++;
         }
 
         $libraryButtons = array_chunk($libraryButtons, 5);
@@ -161,15 +151,15 @@ class BotCommands
 
     private function sendWelcomeMessage($chatId) : void
     {
-        $commands = $this->telegramBot->createReplyKeyboardMarkup(self::MENU);
-        $this->telegramBot->sendMessage($chatId, self::WELCOME_MESSAGE, $commands);
+        $commands = $this->telegramBot->createReplyKeyboardMarkup(constants\MENU);
+        $this->telegramBot->sendMessage($chatId, constants\WELCOME_MESSAGE, $commands);
     }
 
     private function sendPatent($chatId, $id) : void
     {
         if (!$this->database->isPatentInLibraryById($chatId, $id))
         {
-            $this->telegramBot->sendMessage($chatId, self::PATENT_NOT_FOUND_IN_LIBRARY);
+            $this->telegramBot->sendMessage($chatId, constants\PATENT_NOT_FOUND_IN_LIBRARY);
             return;
         }
         $patent = json_decode($this->database->getPatentById($id));
@@ -187,35 +177,31 @@ class BotCommands
         $description = $article->description . "\n\n";
         $photoUrl = $article->urlToImage;
 
-        return '<b>' . $title . '</b>' . $description.$photoUrl;
+        return '<b>' . $title . '</b>' . $description . $photoUrl;
     }
 
     private function tryHandleCommand($chatId, $userText) : void
     {
-        if ($userText == "/start")
+        switch ($userText)
         {
-            $this->sendWelcomeMessage($chatId);
-            $this->database->addNewUser($chatId);
-        }
-        elseif ($userText == "Astronomy picture of the day")
-        {
-            $this->sendAstronomicalPicture($chatId);
-        }
-        elseif ($userText == "Get random the NASA patent")
-        {
-            $this->sendRandomPatent($chatId);
-        }
-        elseif ($userText == "NASA NEWS")
-        {
-            $this->sendNews($chatId);
-        }
-        elseif ($userText == "PATENTS LIBRARY")
-        {
-            $this->sendLibrary($chatId);
-        }
-        else
-        {
-            $this->telegramBot->sendMessage($chatId, self::USE_KEYBOARD_MESSAGE);
+            case "/start":
+                $this->sendWelcomeMessage($chatId);
+                $this->database->addNewUser($chatId);
+                break;
+            case "Astronomy picture of the day":
+                $this->sendAstronomicalPicture($chatId);
+                break;
+            case "Get random the NASA patent":
+                $this->sendRandomPatent($chatId);
+                break;
+            case "NASA NEWS":
+                $this->sendNews($chatId);
+                break;
+            case "PATENTS LIBRARY":
+                $this->sendLibrary($chatId);
+                break;
+            default:
+                $this->telegramBot->sendMessage($chatId, constants\USE_KEYBOARD_MESSAGE);
         }
     }
 
@@ -230,29 +216,27 @@ class BotCommands
         }
         catch (Exception $e)
         {
-            $this->telegramBot->sendMessage($chatId, self::UNAVAILABLE_SERVICE_MESSAGE);
+            $this->telegramBot->sendMessage($chatId, constants\UNAVAILABLE_SERVICE_MESSAGE);
         }
     }
 
     private function tryUseCallbackQuery($callback) : void
     {
-        if ($callback['data'] == 'addToLibrary')
+        switch ($callback['data'])
         {
-            $this->addToLibrary($callback['message']);
-        }
-        elseif ($callback['data'] == 'deleteFromLibrary')
-        {
-            $this->removeFromLibrary($callback['message']);
-        }
-        elseif ($callback['data'] == 'deleteAll')
-        {
-            $this->deleteAllPatents($callback['message']);
-        }
-        else
-        {
-            $chatId = $callback['message']['chat']['id'];
-            $id = $callback['data'];
-            $this->sendPatent($chatId, $id);
+            case 'addToLibrary':
+                $this->addToLibrary($callback['message']);
+                break;
+            case 'deleteFromLibrary':
+                $this->removeFromLibrary($callback['message']);
+                break;
+            case 'deleteAll':
+                $this->deleteAllPatents($callback['message']);
+                break;
+            default:
+                $chatId = $callback['message']['chat']['id'];
+                $id = $callback['data'];
+                $this->sendPatent($chatId, $id);
         }
     }
 
@@ -271,7 +255,7 @@ class BotCommands
         catch (Exception $e)
         {
             $chatId = $update['callback_query']['message']['chat']['id'];
-            $this->telegramBot->sendMessage($chatId, self::UNAVAILABLE_SERVICE_MESSAGE);
+            $this->telegramBot->sendMessage($chatId, constants\UNAVAILABLE_SERVICE_MESSAGE);
             return true;
         }
     }
@@ -279,21 +263,9 @@ class BotCommands
     public function useBot() : void
     {
         $update = $this->telegramBot->getWebhook();
-            if (!$this->useCallbackQuery($update))
-            {
-                $this->handleCommand($update);
-            }
-    }
-
-    public function addNewPatentsToDatabase() : void
-    {
-        $patents = json_decode($this->information->getPatents());
-        foreach ($patents as $patent)
+        if (!$this->useCallbackQuery($update))
         {
-            if (!$this->database->searchPatent($patent->title))
-            {
-                $this->database->addPatent($patent);
-            }
+            $this->handleCommand($update);
         }
     }
 
@@ -306,12 +278,12 @@ class BotCommands
 
         if ($this->database->isPatentInLibraryByTitle($chatId, $title))
         {
-            $this->telegramBot->sendMessage($chatId, self::PATENT_IN_LIBRARY);
+            $this->telegramBot->sendMessage($chatId, constants\PATENT_IN_LIBRARY);
         }
         else
         {
             $this->database->savePatentToLibrary($chatId, $title);
-            $this->telegramBot->sendMessage($chatId, self::CORRECT_ADD_TO_LIBRARY);
+            $this->telegramBot->sendMessage($chatId, constants\CORRECT_ADD_TO_LIBRARY);
         }
     }
 
@@ -319,7 +291,7 @@ class BotCommands
     {
         $chatId = $message['chat']['id'];
         $this->database->deleteAll($chatId);
-        $this->telegramBot->sendMessage($chatId, self::ALL_PATENTS_REMOVE);
+        $this->telegramBot->sendMessage($chatId, constants\ALL_PATENTS_REMOVE);
     }
 
     public function removeFromLibrary($message) : void

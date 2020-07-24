@@ -6,6 +6,26 @@ class News
     private const SEARCH_PARAMETERS = "NASA";
     private const SEARCH_URL = "http://newsapi.org/v2/everything?q=" . self::SEARCH_PARAMETERS . "&language=en&sortBy=publishedAt&apiKey=" . self::TOKEN;
 
+    public function getNews() : ?string
+    {
+        $response = query(self::SEARCH_URL);
+
+        if(is_null($response))
+        {
+            return null;
+        }
+
+        if(is_null($response->articles))
+        {
+            return null;
+        }
+
+        $firstArticle = $response->articles[0];
+
+        return $this->createArrayWithData($firstArticle);
+
+    }
+
     private function createArrayWithData($article) : string
     {
         $title = $article->title;
@@ -15,25 +35,4 @@ class News
 
         return $result = json_encode(['title' => $title, 'description' => $description, 'urlToImage' => $urlToImage, 'url' => $url]);
     }
-
-    public function getNews() : string
-    {
-        $response = query(self::SEARCH_URL);
-
-        if(empty($response))
-        {
-            return "";
-        }
-
-        if(empty($response->articles))
-        {
-            return "";
-        }
-
-        $firstArticle = $response->articles[0];
-
-        return $this->createArrayWithData($firstArticle);
-
-    }
-
 }

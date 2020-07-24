@@ -1,16 +1,19 @@
 <?php
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+
 function query($url)
 {
-    $client = new \GuzzleHttp\Client();
+    $client = new Client();
 
     try
     {
         $result = $client->request('GET', $url);
     }
-    catch (\GuzzleHttp\Exception\GuzzleException $e)
+    catch (GuzzleException $e)
     {
-        return [];
+        return null;
     }
 
     return json_decode($result->getBody());
