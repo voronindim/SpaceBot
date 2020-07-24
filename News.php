@@ -3,7 +3,7 @@
 class News
 {
     private const TOKEN = "34ff380705cc465fa3c53f34e1914259";
-    private const SEARCH_PARAMETERS = "NASA";
+    private const SEARCH_PARAMETERS = "NASA, space";
     private const SEARCH_URL = "http://newsapi.org/v2/everything?q=" . self::SEARCH_PARAMETERS . "&language=en&sortBy=publishedAt&apiKey=" . self::TOKEN;
 
     public function getNews() : ?string
